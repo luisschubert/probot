@@ -57,8 +57,7 @@ module.exports = (options = {}) => {
   }
 
   // Setup built-in stats plugin
-  const stats = require('./lib/stats');
-  stats(robot);
+  require('./lib/plugins/stats')(robot);
 
   return {
     server,
