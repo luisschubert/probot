@@ -56,6 +56,10 @@ module.exports = (options = {}) => {
     logger.addStream(sentryStream(Raven));
   }
 
+  // Setup built-in stats plugin
+  const stats = require('./lib/stats');
+  stats(robot);
+
   return {
     server,
     robot,
