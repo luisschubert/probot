@@ -56,15 +56,15 @@ module.exports = (options = {}) => {
     logger.addStream(sentryStream(Raven));
   }
 
-  // Setup built-in stats plugin
-  require('./lib/plugins/stats')(robot);
-
   return {
     server,
     robot,
     webhook,
 
     start() {
+      // Setup built-in stats plugin
+      require('./lib/plugins/stats')(robot);
+
       server.listen(options.port);
       logger.trace('Listening on http://localhost:' + options.port);
     },
