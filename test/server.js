@@ -1,60 +1,32 @@
 const expect = require('expect');
+const request = require('supertest');
 const createServer = require('../lib/server');
 
-describe('Server', () => {
-  let handler;
+describe('server', function () {
+  let server;
   let webhook;
-  let req;
-  let res;
 
-  describe('handler', () => {
+  beforeEach(() => {
+    webhook = expect.createSpy().andCall((req, res, next) => next());
+    server = createServer(webhook);
+  });
+
+  describe('GET /ping', () => {
+    it('returns a 200 repsonse', () => {
+      return request(server).get('/ping').expect(200, 'PONG');
+    });
+  });
+
+  describe('webhook handler', () => {
     it('should 500 on a webhook error', () => {
-      webhook = function (req, res, callback) {
-        callback('webhook error');
-      };
-      handler = createServer.createHandler(webhook);
-      req = {url: ''};
-      res = {};
-      res.end = expect.createSpy();
-      handler(req, res);
-      expect(res.end).toHaveBeenCalledWith('Something has gone terribly wrong.');
-      expect(res.statusCode).toEqual(500);
+      webhook.andCall((req, res, callback) => callback('webhook error'));
+      return request(server).post('/').expect(500);
     });
+  });
 
-    it('should respond with PONG for `/ping`', () => {
-      webhook = function (req, res, callback) {
-        callback(null);
-      };
-      handler = createServer.createHandler(webhook);
-      req = {url: '/ping'};
-      res = {};
-      res.end = expect.createSpy();
-      handler(req, res);
-      expect(res.end).toHaveBeenCalledWith('PONG');
-    });
-
-    it('should respond with 404 if no handler is present', () => {
-      webhook = function (req, res, callback) {
-        callback(null);
-      };
-      handler = createServer.createHandler(webhook);
-      req = {url: '/404'};
-      res = {};
-      res.end = expect.createSpy();
-      handler(req, res);
-      expect(res.end).toHaveBeenCalledWith('no such location');
-      expect(res.statusCode).toEqual(404);
-    });
-
-    it('should delegate to the handler if present and webhook 404s', () => {
-      webhook = function (req, res, callback) {
-        callback(null);
-      };
-      const handlerSpy = expect.createSpy();
-      handler = createServer.createHandler(webhook, handlerSpy);
-      req = {url: '/blog'};
-      handler(req, res);
-      expect(handlerSpy).toHaveBeenCalledWith(req, res);
+  describe('with an unknown url', () => {
+    it('responds with 404', () => {
+      return request(server).get('/lolnotfound').expect(404);
     });
   });
 });
