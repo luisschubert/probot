@@ -58,6 +58,7 @@ const probot = createProbot({
 });
 
 pkgConf('probot').then(pkg => {
+    // console.log('probot contains:' + probot)
   const plugins = require('../lib/plugin')(probot);
   const requestedPlugins = program.args.concat(pkg.plugins || []);
 
