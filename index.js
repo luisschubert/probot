@@ -71,7 +71,7 @@ module.exports = (options = {}) => {
     },
 
     load(plugin) {
-      const robot = createRobot({app, cache, logger, router, catchErrors: true});
+      const robot = createRobot({app, cache, logger, robot.router, catchErrors: true});
 
       // Connect the router from the robot to the server
       server.use(robot.router);
